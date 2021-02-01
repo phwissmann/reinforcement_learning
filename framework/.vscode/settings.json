@@ -1,0 +1,11 @@
+{
+    "python.pythonPath": ".venv/bin/python3.7",
+    "python.linting.pylintEnabled": false,
+    "python.linting.flake8Enabled": true,
+    "python.linting.enabled": true,
+    "python.formatting.provider": "autopep8",
+    "editor.formatOnSave": true,
+    "python.linting.flake8Args": [
+    "--max-line-length=120",
+    ]
+}
