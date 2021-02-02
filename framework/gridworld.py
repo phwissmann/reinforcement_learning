@@ -19,7 +19,7 @@ class Grid():
         self.special_state_A = 1
         self.special_state_A_successor = 1 + 4*self.cols
         self.special_state_B = 3
-        self.special_state_B_successor = 1 + 2*self.cols
+        self.special_state_B_successor = 3 + 2*self.cols
 
     def successor_state(self, state: int, action: Action):
         # if special state A, all actions go to A's successor
@@ -31,16 +31,13 @@ class Grid():
 
         # else normal rules apply
         if action == Action.NORTH:
-            return state - self.cols if state - self.cols > 0 else state
+            return state - self.cols if state - self.cols >= 0 else state
         elif action == Action.SOUTH:
             return state + self.cols if state + self.cols < self.rows*self.cols else state
         elif action == Action.EAST:
             return state + 1 if (state+1) % self.cols != 0 else state
         elif action == Action.WEST:
             return state - 1 if state % self.cols != 0 else state
-
-    def state_index(self, col: int, row: int):
-        return col + self.cols*row
 
     def reward(self, state: int, successor_state: int):
 
@@ -56,11 +53,11 @@ class Grid():
             return 0.0
 
     def prob_action_selection(self, action: Action, state: int):
+        """ Random policy """
         return 0.25
 
-    def prob_action_executed(self, state: int, successor_state: int):
-        if state == successor_state:
-            return 1
+    def prob_action_executed(self, action: Action, state: int, successor_state: int):
+        """ All selected actions are always executed"""
         return 1
 
 
@@ -79,19 +76,15 @@ def solve_gridworld(grid: Grid):
             successor_state = grid.successor_state(i, action)
 
             A[i, successor_state] = A[i, successor_state] - grid.prob_action_selection(
-                i, successor_state) * grid.prob_action_executed(i, successor_state) * DISCOUNT_RATE
+                action, i) * grid.prob_action_executed(action, i, successor_state) * DISCOUNT_RATE
 
-            b[i] = b[i] + grid.prob_action_selection(action, i) * grid.prob_action_executed(
-                i, successor_state) * grid.reward(i, successor_state)
-
-    # with np.printoptions(precision=3, suppress=True):
-     #   print(A)
-       # print(b)
+            b[i] = b[i] + grid.prob_action_selection(action, i) * grid.prob_action_executed(action,
+                                                                                            i, successor_state) * grid.reward(i, successor_state)
 
     x = np.linalg.solve(A, b)
 
-    with np.printoptions(precision=2, suppress=True):
-        print(x.transpose())
+    with np.printoptions(precision=1, suppress=True):
+        print(x)
 
 
 if __name__ == "__main__":
