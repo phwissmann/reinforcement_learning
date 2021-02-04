@@ -87,7 +87,41 @@ def solve_gridworld(grid: Grid):
         print(x)
 
 
+def iterative_solve(grid: Grid):
+    dim = grid.rows*grid.cols
+
+    states = np.random.random((dim,))
+    states[-1] = 0
+
+    tol = 1e-6
+
+    max_diff = 1
+
+    num_iters = 0
+    num_max_iters = 1000
+
+    while max_diff > tol and num_iters < num_max_iters:
+
+        prev_states = states.copy()
+
+        for i in range(dim):
+            states[i] = 0
+            for action in Action:
+                successor_state = grid.successor_state(i, action)
+
+                states[i] = states[i] + grid.prob_action_selection(action, i) * grid.prob_action_executed(
+                    action, i, successor_state) * (grid.reward(i, successor_state) + DISCOUNT_RATE*prev_states[successor_state])
+
+        max_diff = np.max(np.abs(prev_states - states))
+        num_iters = num_iters+1
+
+    print(f"Num Iterations: {num_iters}\nDelta: {max_diff}")
+    with np.printoptions(precision=1, suppress=True):
+        print(states)
+
+
 if __name__ == "__main__":
     grid = Grid(5, 5)
 
-    solve_gridworld(grid)
+    # solve_gridworld(grid)
+    iterative_solve(grid)
